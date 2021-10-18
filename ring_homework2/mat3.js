@@ -15,7 +15,9 @@ var zAxis = 2;
 
 var axis = 0;
 
-
+var rotation_matrix_loc;
+var position_matrix_loc;
+var scale_matrix_loc;
 var modelisation_matrix_loc;
 var vColorLoc;
 
@@ -93,6 +95,9 @@ window.onload = function init()
     gl.vertexAttribPointer( vColorLoc, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vColorLoc );
 
+    rotation_matrix_loc = gl.getUniformLocation(program, "rotation_matrix");
+    position_matrix_loc = gl.getUniformLocation(program, "position_matrix");
+    scale_matrix_loc = gl.getUniformLocation(program,"scale_matrix");
 
     var shadedcolorsBuffer = gl.createBuffer();
 
@@ -180,17 +185,120 @@ function quad(a, b, c, d)
 
 }
 
+function scaleCube()
+{
+    return scale(0.250,0.250,0.250);
+}
+
+function scaleLongSlimRecPrism()
+{
+    return scale(0.125,0.5,0.125);
+}
+
+function scaleLongHorizontalSlimRecPrism()
+{
+    return scale(0.5,0.125,0.125);
+}
+
+function displacementCube()
+{
+    return translate(-0.375,0.375,0)
+}
+
+function reverseDisplacementCube()
+{
+    return translate(0.375, -0.375,0)
+}
+
+function displacementRightCube()
+{
+    return translate(0.375,0.375,0)
+}
+
+function displacementRightBottomCube()
+{
+    return translate(0.375,-0.375,0);
+}
+
+
+function displacementRecPrism()
+{
+    return translate(-0.375,0,0);
+}
+
+function displacementRightRecPrism()
+{
+    return translate(0.375,0,0);
+}
+
+function displacementBottomCube()
+{
+    return translate(-0.375,-0.375,0)
+}
+
+function displacementBottomHorizontalRecPrism()
+{
+    return translate(-0,-0.375,0);
+}
+
+function displacementHorizontalRecPrism()
+{
+    return translate(-0,0.375,0);
+}
+
 function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    var m = mult(rotate(anglex/10.0,1,0,0),rotate(angley/10,0,1,0),rotate(0,0,0,1));
+    var rotation_matrix = mult(rotate(anglex/10.0,1,0,0),rotate(angley/10,0,1,0),rotate(0,0,0,1));
 
-
-    gl.uniformMatrix4fv(modelisation_matrix_loc,false,flatten(m));
-
+    //left top cube
+    var transformation_matrix = mult(rotation_matrix,displacementCube());
+    transformation_matrix = mult(transformation_matrix, scaleCube());
+    gl.uniformMatrix4fv(modelisation_matrix_loc,false,flatten(transformation_matrix));
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
+    //mid top prism
+    transformation_matrix=mult(rotation_matrix, displacementHorizontalRecPrism());
+    transformation_matrix=mult(transformation_matrix, scaleLongHorizontalSlimRecPrism());
+    gl.uniformMatrix4fv(modelisation_matrix_loc,false,flatten(transformation_matrix));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+
+    //right top cube
+    transformation_matrix=mult(rotation_matrix, displacementRightCube());
+    transformation_matrix=mult(transformation_matrix, scaleCube());
+    gl.uniformMatrix4fv(modelisation_matrix_loc,false,flatten(transformation_matrix));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+
+    //left mid vertical prism
+    transformation_matrix=mult(rotation_matrix, displacementRecPrism());
+    transformation_matrix=mult(transformation_matrix, scaleLongSlimRecPrism());
+    gl.uniformMatrix4fv(modelisation_matrix_loc,false,flatten(transformation_matrix));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+
+    //right mid vertical prism
+    transformation_matrix=mult(rotation_matrix, displacementRightRecPrism());
+    transformation_matrix=mult(transformation_matrix, scaleLongSlimRecPrism());
+    gl.uniformMatrix4fv(modelisation_matrix_loc,false,flatten(transformation_matrix));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+
+    //left bot cube
+    transformation_matrix = mult(rotation_matrix,displacementBottomCube());
+    transformation_matrix = mult(transformation_matrix, scaleCube());
+    gl.uniformMatrix4fv(modelisation_matrix_loc,false,flatten(transformation_matrix));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+
+    //mid bot prism
+    transformation_matrix=mult(rotation_matrix, displacementBottomHorizontalRecPrism());
+    transformation_matrix=mult(transformation_matrix, scaleLongHorizontalSlimRecPrism());
+    gl.uniformMatrix4fv(modelisation_matrix_loc,false,flatten(transformation_matrix));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+
+    //right bot cube
+    transformation_matrix=mult(rotation_matrix, displacementRightBottomCube());
+    transformation_matrix=mult(transformation_matrix, scaleCube());
+    gl.uniformMatrix4fv(modelisation_matrix_loc,false,flatten(transformation_matrix));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 //    requestAnimFrame( render );
 }
 
